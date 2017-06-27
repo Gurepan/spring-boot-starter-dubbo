@@ -5,9 +5,9 @@ import java.lang.annotation.*;
 /**
  * Created by Gure on 2017/6/27.
  */
-@Documented
+@Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE})
+@Documented
 public @interface Require {
     // 版本
     String version() default "";

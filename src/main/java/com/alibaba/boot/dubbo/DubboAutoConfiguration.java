@@ -1,12 +1,6 @@
 package com.alibaba.boot.dubbo;
 
 import com.alibaba.boot.dubbo.annotation.AnnotationConversion;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
 import com.alibaba.boot.dubbo.endpoint.DubboEndpoint;
 import com.alibaba.boot.dubbo.endpoint.DubboOperationEndpoint;
 import com.alibaba.boot.dubbo.health.DubboHealthIndicator;
@@ -14,6 +8,11 @@ import com.alibaba.boot.dubbo.metrics.DubboMetrics;
 import com.alibaba.dubbo.config.ApplicationConfig;
 import com.alibaba.dubbo.config.ProtocolConfig;
 import com.alibaba.dubbo.config.RegistryConfig;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
 /**
@@ -58,13 +57,6 @@ public class DubboAutoConfiguration {
   }
 
   @Bean
-  public AnnotationConversion annotationConversion() {
-    AnnotationConversion annotationConversion = new AnnotationConversion();
-    annotationConversion.setEnvironment(environment);
-    return annotationConversion;
-  }
-
-  @Bean
   public DubboHealthIndicator dubboHealthIndicator() {
     return new DubboHealthIndicator();
   }
@@ -82,6 +74,13 @@ public class DubboAutoConfiguration {
   @Bean
   public DubboOperationEndpoint dubboOperationEndpoint() {
     return new DubboOperationEndpoint();
+  }
+
+  @Bean
+  public AnnotationConversion annotationConversion() {
+    AnnotationConversion annotationConversion = new AnnotationConversion();
+    annotationConversion.setEnvironment(environment);
+    return annotationConversion;
   }
 
 }

@@ -1,13 +1,11 @@
 package com.alibaba.boot.dubbo.health;
 
-import org.springframework.boot.actuate.health.AbstractHealthIndicator;
-import org.springframework.boot.actuate.health.Health;
-import org.springframework.stereotype.Component;
-
 import com.alibaba.boot.dubbo.DubboConsumerAutoConfiguration;
 import com.alibaba.boot.dubbo.domain.ClassIdBean;
 import com.alibaba.boot.dubbo.listener.ConsumerSubscribeListener;
 import com.alibaba.dubbo.rpc.service.EchoService;
+import org.springframework.boot.actuate.health.AbstractHealthIndicator;
+import org.springframework.boot.actuate.health.Health;
 
 /**
  * dubbo health indicator
@@ -16,7 +14,6 @@ import com.alibaba.dubbo.rpc.service.EchoService;
  * @email xionghui.xh@alibaba-inc.com
  * @since 1.0.0
  */
-@Component
 public class DubboHealthIndicator extends AbstractHealthIndicator {
 
   @Override

@@ -1,12 +1,13 @@
 package com.alibaba.boot.dubbo;
 
-import java.util.Map;
-
-import javax.annotation.PostConstruct;
-
 import com.alibaba.boot.dubbo.annotation.AnnotationConversion;
+import com.alibaba.boot.dubbo.annotation.EnableDubboConfiguration;
 import com.alibaba.boot.dubbo.annotation.Provide;
-import com.alibaba.dubbo.config.spring.AnnotationBean;
+import com.alibaba.dubbo.config.ApplicationConfig;
+import com.alibaba.dubbo.config.ProtocolConfig;
+import com.alibaba.dubbo.config.RegistryConfig;
+import com.alibaba.dubbo.config.annotation.Service;
+import com.alibaba.dubbo.config.spring.ServiceBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -15,12 +16,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
 
-import com.alibaba.boot.dubbo.annotation.EnableDubboConfiguration;
-import com.alibaba.dubbo.config.ApplicationConfig;
-import com.alibaba.dubbo.config.ProtocolConfig;
-import com.alibaba.dubbo.config.RegistryConfig;
-import com.alibaba.dubbo.config.annotation.Service;
-import com.alibaba.dubbo.config.spring.ServiceBean;
+import javax.annotation.PostConstruct;
+import java.util.Map;
 
 /**
  * DubboProviderAutoConfiguration
@@ -59,8 +56,8 @@ public class DubboProviderAutoConfiguration {
   }
 
   public void initProviderBean(String beanName, Object bean) throws Exception {
-    Provide service = this.applicationContext.findAnnotationOnBean(beanName,Provide.class);
-    annotationConversion.Conversion(service);
+    Provide provide = this.applicationContext.findAnnotationOnBean(beanName,Provide.class);
+    Service service=annotationConversion.Conversion(provide);
     ServiceBean<Object> serviceConfig = new ServiceBean<Object>();
     if (void.class.equals(service.interfaceClass()) && "".equals(service.interfaceName())) {
       if (bean.getClass().getInterfaces().length > 0) {

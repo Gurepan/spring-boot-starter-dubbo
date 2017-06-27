@@ -1,11 +1,13 @@
 package com.alibaba.boot.dubbo;
 
-import java.lang.reflect.Field;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import com.alibaba.boot.dubbo.annotation.AnnotationConversion;
+import com.alibaba.boot.dubbo.annotation.EnableDubboConfiguration;
 import com.alibaba.boot.dubbo.annotation.Require;
+import com.alibaba.boot.dubbo.domain.ClassIdBean;
+import com.alibaba.dubbo.config.ApplicationConfig;
+import com.alibaba.dubbo.config.RegistryConfig;
+import com.alibaba.dubbo.config.annotation.Service;
+import com.alibaba.dubbo.config.spring.ReferenceBean;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +20,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.alibaba.boot.dubbo.annotation.EnableDubboConfiguration;
-import com.alibaba.boot.dubbo.domain.ClassIdBean;
-import com.alibaba.dubbo.config.ApplicationConfig;
-import com.alibaba.dubbo.config.RegistryConfig;
-import com.alibaba.dubbo.config.annotation.Service;
-import com.alibaba.dubbo.config.spring.ReferenceBean;
+import java.lang.reflect.Field;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * DubboConsumerAutoConfiguration, use {@link Service#version} and {@link Service#timeout}
@@ -70,7 +69,7 @@ public class DubboConsumerAutoConfiguration {
           for (Field field : objClz.getDeclaredFields()) {
             Require require = field.getAnnotation(Require.class);
             if (require != null) {
-              annotationConversion.Conversion(require);
+              require = annotationConversion.Conversion(require);
               Class<?> type = field.getType();
               ReferenceBean<?> consumerBean =
                   DubboConsumerAutoConfiguration.this.getConsumerBean(type, require);
