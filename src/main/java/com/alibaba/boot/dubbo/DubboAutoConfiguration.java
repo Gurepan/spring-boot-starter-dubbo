@@ -1,5 +1,6 @@
 package com.alibaba.boot.dubbo;
 
+import com.alibaba.boot.dubbo.annotation.AnnotationConversion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -13,6 +14,7 @@ import com.alibaba.boot.dubbo.metrics.DubboMetrics;
 import com.alibaba.dubbo.config.ApplicationConfig;
 import com.alibaba.dubbo.config.ProtocolConfig;
 import com.alibaba.dubbo.config.RegistryConfig;
+import org.springframework.core.env.Environment;
 
 /**
  * Dubbo common configuration
@@ -26,6 +28,8 @@ import com.alibaba.dubbo.config.RegistryConfig;
 public class DubboAutoConfiguration {
   @Autowired
   private DubboProperties properties;
+  @Autowired
+  private Environment environment;
 
   @Bean
   @ConditionalOnMissingBean
@@ -54,6 +58,13 @@ public class DubboAutoConfiguration {
   }
 
   @Bean
+  public AnnotationConversion annotationConversion() {
+    AnnotationConversion annotationConversion = new AnnotationConversion();
+    annotationConversion.setEnvironment(environment);
+    return annotationConversion;
+  }
+
+  @Bean
   public DubboHealthIndicator dubboHealthIndicator() {
     return new DubboHealthIndicator();
   }
@@ -67,7 +78,6 @@ public class DubboAutoConfiguration {
   public DubboMetrics dubboConsumerMetrics() {
     return new DubboMetrics();
   }
-
 
   @Bean
   public DubboOperationEndpoint dubboOperationEndpoint() {

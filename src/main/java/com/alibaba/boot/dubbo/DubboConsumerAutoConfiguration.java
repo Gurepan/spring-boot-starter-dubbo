@@ -4,6 +4,8 @@ import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.alibaba.boot.dubbo.annotation.AnnotationConversion;
+import com.alibaba.boot.dubbo.annotation.Require;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,14 +18,12 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.alibaba.boot.dubbo.annotation.DubboConsumer;
 import com.alibaba.boot.dubbo.annotation.EnableDubboConfiguration;
 import com.alibaba.boot.dubbo.domain.ClassIdBean;
 import com.alibaba.dubbo.config.ApplicationConfig;
 import com.alibaba.dubbo.config.RegistryConfig;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.config.spring.ReferenceBean;
-import org.springframework.core.env.Environment;
 
 /**
  * DubboConsumerAutoConfiguration, use {@link Service#version} and {@link Service#timeout}
@@ -49,12 +49,11 @@ public class DubboConsumerAutoConfiguration {
   private DubboProperties properties;
 
   @Autowired
-  private Environment environment;
-
-  @Autowired
   private ApplicationConfig applicationConfig;
   @Autowired
   private RegistryConfig registryConfig;
+  @Autowired
+  private AnnotationConversion annotationConversion;
 
   @Bean
   public BeanPostProcessor beanPostProcessor() {
@@ -69,11 +68,12 @@ public class DubboConsumerAutoConfiguration {
 
         try {
           for (Field field : objClz.getDeclaredFields()) {
-            DubboConsumer dubboConsumer = field.getAnnotation(DubboConsumer.class);
-            if (dubboConsumer != null) {
+            Require require = field.getAnnotation(Require.class);
+            if (require != null) {
+              annotationConversion.Conversion(require);
               Class<?> type = field.getType();
               ReferenceBean<?> consumerBean =
-                  DubboConsumerAutoConfiguration.this.getConsumerBean(type, dubboConsumer);
+                  DubboConsumerAutoConfiguration.this.getConsumerBean(type, require);
               String group = consumerBean.getGroup();
               String version = consumerBean.getVersion();
               ClassIdBean classIdBean = new ClassIdBean(type, group, version);
@@ -126,57 +126,57 @@ public class DubboConsumerAutoConfiguration {
    * 设置相关配置信息, @see DubboConsumer
    *
    * @param interfaceClazz
-   * @param dubboConsumer
+   * @param require
    * @return
    * @throws BeansException
    */
-  private <T> ReferenceBean<T> getConsumerBean(Class<T> interfaceClazz, DubboConsumer dubboConsumer)
+  private <T> ReferenceBean<T> getConsumerBean(Class<T> interfaceClazz, Require require)
       throws BeansException {
     ReferenceBean<T> consumerBean = new ReferenceBean<T>();
     consumerBean.setInterface(interfaceClazz);
     String canonicalName = interfaceClazz.getCanonicalName();
     consumerBean.setId(canonicalName);
-    String registry = dubboConsumer.registry();
+    String registry = require.registry();
     if (registry != null && registry.length() > 0) {
       RegistryConfig registryConfig = new RegistryConfig();
       registryConfig.setAddress(registry);
       consumerBean.setRegistry(registryConfig);
     }
-    String group = dubboConsumer.group();
+    String group = require.group();
     if (group == null || "".equals(group)) {
       group = this.properties.getGroup();
     }
     if (group != null && !"".equals(group)) {
       consumerBean.setGroup(group);
     }
-    String version = dubboConsumer.version();
+    String version = require.version();
     if (version == null || "".equals(version)) {
       version = this.properties.getVersion();
     }
     if (version != null && !"".equals(version)) {
       consumerBean.setVersion(version);
     }
-    int timeout = dubboConsumer.timeout();
+    int timeout = require.timeout();
     consumerBean.setTimeout(timeout);
-    String client = dubboConsumer.client();
+    String client = require.client();
     consumerBean.setClient(client);
-    String url = dubboConsumer.url();
+    String url = require.url();
     consumerBean.setUrl(url);
-    String protocol = dubboConsumer.protocol();
+    String protocol = require.protocol();
     consumerBean.setProtocol(protocol);
-    boolean check = dubboConsumer.check();
+    boolean check = require.check();
     consumerBean.setCheck(check);
-    boolean lazy = dubboConsumer.lazy();
+    boolean lazy = require.lazy();
     consumerBean.setLazy(lazy);
-    int retries = dubboConsumer.retries();
+    int retries = require.retries();
     consumerBean.setRetries(retries);
-    int actives = dubboConsumer.actives();
+    int actives = require.actives();
     consumerBean.setActives(actives);
-    String loadbalance = dubboConsumer.loadbalance();
+    String loadbalance = require.loadbalance();
     consumerBean.setLoadbalance(loadbalance);
-    boolean async = dubboConsumer.async();
+    boolean async = require.async();
     consumerBean.setAsync(async);
-    boolean sent = dubboConsumer.sent();
+    boolean sent = require.sent();
     consumerBean.setSent(sent);
     return consumerBean;
   }

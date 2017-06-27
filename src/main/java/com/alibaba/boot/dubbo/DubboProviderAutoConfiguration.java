@@ -4,6 +4,9 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
+import com.alibaba.boot.dubbo.annotation.AnnotationConversion;
+import com.alibaba.boot.dubbo.annotation.Provide;
+import com.alibaba.dubbo.config.spring.AnnotationBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -45,18 +48,20 @@ public class DubboProviderAutoConfiguration {
   private ProtocolConfig protocolConfig;
   @Autowired
   private RegistryConfig registryConfig;
-
+  @Autowired
+  private AnnotationConversion annotationConversion;
   @PostConstruct
   public void init() throws Exception {
-    Map<String, Object> beans = this.applicationContext.getBeansWithAnnotation(Service.class);
+    Map<String, Object> beans = this.applicationContext.getBeansWithAnnotation(Provide.class);
     for (Map.Entry<String, Object> entry : beans.entrySet()) {
       this.initProviderBean(entry.getKey(), entry.getValue());
     }
   }
 
   public void initProviderBean(String beanName, Object bean) throws Exception {
-    Service service = this.applicationContext.findAnnotationOnBean(beanName, Service.class);
-    ServiceBean<Object> serviceConfig = new ServiceBean<Object>(service);
+    Provide service = this.applicationContext.findAnnotationOnBean(beanName,Provide.class);
+    annotationConversion.Conversion(service);
+    ServiceBean<Object> serviceConfig = new ServiceBean<Object>();
     if (void.class.equals(service.interfaceClass()) && "".equals(service.interfaceName())) {
       if (bean.getClass().getInterfaces().length > 0) {
         serviceConfig.setInterface(bean.getClass().getInterfaces()[0]);
@@ -64,6 +69,12 @@ public class DubboProviderAutoConfiguration {
         throw new IllegalStateException("Failed to export remote service class "
             + bean.getClass().getName()
             + ", cause: The @Service undefined interfaceClass or interfaceName, and the service class unimplemented any interfaces.");
+      }
+    }else {
+      if (!void.class.equals(service.interfaceClass())) {
+        serviceConfig.setInterface(service.interfaceClass());
+      } else {
+        serviceConfig.setInterface(service.interfaceName());
       }
     }
     String version = service.version();
