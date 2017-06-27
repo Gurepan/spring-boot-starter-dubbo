@@ -23,6 +23,7 @@ import com.alibaba.dubbo.config.ApplicationConfig;
 import com.alibaba.dubbo.config.RegistryConfig;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.config.spring.ReferenceBean;
+import org.springframework.core.env.Environment;
 
 /**
  * DubboConsumerAutoConfiguration, use {@link Service#version} and {@link Service#timeout}
@@ -46,6 +47,9 @@ public class DubboConsumerAutoConfiguration {
 
   @Autowired
   private DubboProperties properties;
+
+  @Autowired
+  private Environment environment;
 
   @Autowired
   private ApplicationConfig applicationConfig;
